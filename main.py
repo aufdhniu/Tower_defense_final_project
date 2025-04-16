@@ -4,7 +4,7 @@ import time
 from enemy import Enemy
 from world import World
 from turret import Turret
-
+from map_waypoints import map1, map1_a
 
 
 #initialise pygame
@@ -26,6 +26,9 @@ enemy_image = pg.image.load("assets/images/enemy/enemy_3/move_000.png").convert_
 enemy_group = pg.sprite.Group()
 turret_group = pg.sprite.Group()
 
+last_spawn_time = 0
+spawn_interval = 2000
+
 def create_turret(mouse_pos):
     # mouse_tile_x = mouse_pos[0] // 64
     # mouse_tile_y = mouse_pos[1] // 100
@@ -41,11 +44,12 @@ def create_turret(mouse_pos):
         turret = Turret(cursor_turret,mouse_pos)
         turret_group.add(turret)
 
-
+wave_number = 1
+enemies_per_wave = 5
 world = World(map_image)
 enemy = Enemy(world.waypoints, enemy_image)
 enemy_group.add(enemy)
-
+waypoint_list = [map1, map1_a]
 print(enemy_group)
 pos_list = []
 
@@ -89,7 +93,14 @@ while run:
             mouse_pos = pg.mouse.get_pos()
             if mouse_pos[0] < c.SCREEN_WIDTH and mouse_pos[1] < c.SCREEN_HEIGHT:
                 create_turret(mouse_pos)
-                
+
+    current_time = pg.time.get_ticks()
+    if current_time - last_spawn_time > spawn_interval:
+        last_spawn_time = current_time
+
+        for waypoints in waypoint_list:
+            enemy = Enemy(waypoints, enemy_image, health=125)  
+            enemy_group.add(enemy)          
         
     #     pos = pg.mouse.get_pos()
     #     if event.type == pg.MOUSEBUTTONDOWN:

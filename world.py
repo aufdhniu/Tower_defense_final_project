@@ -1,14 +1,16 @@
 import pygame as pg
-import map_waypoints as mw
+from waypoint import waypoints,waypoints_blocked
+
 
 class World():
-    def __init__(self,map_image):
-        self.waypoints = mw.map1
-        self.map_not_avaible = mw.map1_a    
-        self.map_image = map_image
-        self.map_image = pg.transform.scale(self.map_image,(1280,720))
-    def draw(self,surface):
-        surface.blit(self.map_image,(0,0))
-    
-    def process_data(self):
-        pass
+    def __init__(self, map_image ):
+        self.level = 1
+        self.turret_pos = []
+        self.map_blocked = waypoints_blocked
+        self.waypoints = waypoints
+        self.image = map_image
+        self.enemy_list = []
+        self.spawned_enemies = 0
+
+    def draw(self, surface):
+        surface.blit(self.image, (0, 0))

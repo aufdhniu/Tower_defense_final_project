@@ -22,6 +22,7 @@ class Turret(pg.sprite.Sprite):
         self.pos = pos
         self.selected = False
         self.target = None
+        self.damage = TURRET_DATA[self.upgrade_level - 1].get("damage")
 
         # animation var
 
@@ -46,32 +47,32 @@ class Turret(pg.sprite.Sprite):
         self.range_rect.center = self.rect.center
 
     def play_animation(self):
-        # update image
         self.image = self.animation_list[self.frame_index]
         self.image = pg.transform.scale(self.image, (360, 360))
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
 
-        # check if enough time since last update
         if pg.time.get_ticks() - self.update_time > c.ANIMATION_DELAY:
             self.update_time = pg.time.get_ticks()
             self.frame_index += 1
 
-            # reset animation
             if self.frame_index >= len(self.animation_list):
                 self.frame_index = 0
+                if self.target:
+                    self.target.take_damage(self.damage)
                 self.last_shot = pg.time.get_ticks()
-                self.target = None
 
     def update(self, enemy_group):
         if self.target:
             self.play_animation()
+            dist = math.dist(self.pos, self.target.pos)
+            if not self.target.alive() or dist > self.range:
+                self.target = None
         else:
             if pg.time.get_ticks() - self.last_shot > self.cooldown:
                 self.pick_target(enemy_group)
 
     def pick_target(self, enemy_group):
-        # find an enemy to target
         x_dist = 0
         y_dist = 0
 
@@ -88,6 +89,7 @@ class Turret(pg.sprite.Sprite):
         self.upgrade_level += 1
         self.range = TURRET_DATA[self.upgrade_level - 1].get("range")
         self.cooldown = TURRET_DATA[self.upgrade_level - 1].get("cooldown")
+        self.damage = TURRET_DATA[self.upgrade_level - 1].get("damage")
 
         self.animation_list = self.animations[self.upgrade_level-1]
 

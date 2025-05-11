@@ -22,6 +22,9 @@ class Enemy(pg.sprite.Sprite):
         self.speed = speed
         self.angle = 0
         self.original_image = image
+        self.max_health = 100
+        self.health = self.max_health
+        self.gold_reward = 10
 
         # animation var
         self.animation_list = self.animations[num]
@@ -81,3 +84,21 @@ class Enemy(pg.sprite.Sprite):
             # reset animation
             if self.frame_index >= len(self.animation_list):
                 self.frame_index = 0
+
+    def take_damage(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            from main import add_gold
+            add_gold(self.gold_reward)
+            self.kill()
+    
+    def draw_health_bar(self, surface):
+        bar_width = 40
+        bar_height = 6
+        health_ratio = self.health / self.max_health
+
+        bar_x = self.pos.x - bar_width // 2
+        bar_y = self.pos.y - 60
+
+        pg.draw.rect(surface, (100, 100, 100), (bar_x, bar_y, bar_width, bar_height))
+        pg.draw.rect(surface, (0, 255, 0), (bar_x, bar_y, bar_width * health_ratio, bar_height))

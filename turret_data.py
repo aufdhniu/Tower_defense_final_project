@@ -1,12 +1,14 @@
 TURRET_DATA = [
     {
-        #lv1.
-        "range":100 ,
-        "cooldown":800,
+        # Level 1
+        "range": 100,
+        "cooldown": 800,
+        "damage": 30,
     },
     {
-        #lv2.
-        "range":160 ,
-        "cooldown":300,
+        # Level 2
+        "range": 160,
+        "cooldown": 300,
+        "damage": 50,
     }
 ]

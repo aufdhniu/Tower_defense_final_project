@@ -3,22 +3,28 @@ from enemy import Enemy
 from world import World
 from turret import Turret
 from button import Button
+from ui_helper import *
 import constant as c
 import random
 
 # initialise pygame
 pg.init()
 
-# สร้าง clock สำหรับ FPS
+# create clock
 clock = pg.time.Clock()
 
-# สร้าง window + config(ขนาด,ชื่อ)
+# create window + config(size, name)
 screen = pg.display.set_mode((c.SCREEN_WIDTH+c.SIDE_PANEL, c.SCREEN_HEIGHT))
 pg.display.set_caption("Tower Defence")
 
 # gamse variables
 placing_turrets = False
 selected_turret = None
+game_paused = False
+gold = 0
+turn_count = 0
+turret_per_turn = []
+font = pg.font.SysFont(None, 30)  # For drawing gold text
 
 # load images
 enemy_image = pg.image.load(
@@ -48,7 +54,7 @@ button_star_image = pg.transform.scale(button_star_image, (40, 40))
 button_star_hover_image = pg.transform.scale(button_star_hover_image, (40, 40))
 panel_image = pg.transform.scale(panel_image, (c.SIDE_PANEL, c.SCREEN_HEIGHT))
 
-# create waypoints (ทางเดินของ enemy)
+# create waypoints (enemy's waypath)
 pos_list = []
 
 
@@ -59,13 +65,18 @@ def check_create_turret(mouse_pos):
             can_create = False
     return can_create
 
+def add_gold(amount):
+    global gold
+    gold += amount
 
 def create_turret(mouse_pos):
-    if (check_create_turret(mouse_pos)):
-        world.turret_pos.append((mouse_pos[0], mouse_pos[1]))
-        world.map_blocked.append((mouse_pos[0], mouse_pos[1]))
+    if check_create_turret(mouse_pos):
+        world.turret_pos.append(mouse_pos)
+        world.map_blocked.append(mouse_pos)
         turret = Turret(cursor_turret, mouse_pos)
         turret_group.add(turret)
+        if len(turret_per_turn) > 0:
+            turret_per_turn[-1] += 1 
 
 
 def select_turret(mouse_pose):
@@ -160,7 +171,10 @@ while run:
     # UPDATING SECTION
     ####################
 
-    # update activity ต่างๆของ enemy ใน group
+    # update activity of enemy in group
+    turn_count += 1
+    turret_per_turn.append(0)
+
     enemy_group.update()
     turret_group.update(enemy_group)
 
@@ -177,10 +191,20 @@ while run:
     # draw map
     world.draw(screen)
 
+    if game_paused:
+        resume = show_pause_menu()
+        if resume:
+            game_paused = False
+        continue
+
     # draw groups
     for turret in turret_group:
         turret.draw(screen)
-    enemy_group.draw(screen)
+    for enemy in enemy_group:
+        screen.blit(enemy.image, enemy.rect)
+        enemy.draw_health_bar(screen)
+
+    turret_count = len(turret_group)
 
     # draw buttons
     screen.blit(panel_image, (c.SCREEN_WIDTH, 0))
@@ -211,6 +235,12 @@ while run:
             if upgrade_turret_button.draw(screen):
                 selected_turret.upgrade(screen)
 
+    gold_text = font.render(f"Gold: {gold}", True, (255, 255, 255))
+    screen.blit(gold_text, (c.SCREEN_WIDTH + 10, 20))
+
+    turret_text = font.render(f"Turrets: {len(turret_group)}", True, (255, 255, 255))
+    screen.blit(turret_text, (c.SCREEN_WIDTH + 10, 50))
+
     # event handler
     for event in pg.event.get():
         # print(event)
@@ -231,7 +261,14 @@ while run:
                 else:
                     selected_turret = select_turret(mouse_pos)
 
-    # แต้มจุด สร้าง waypoint
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_ESCAPE:
+                game_paused = True
+            if event.key == pg.K_i:
+                import data_present
+                data_present.show_turret_data(turret_per_turn)
+
+    # create waypoint
     #     pos = pg.mouse.get_pos()
     #     if event.type == pg.MOUSEBUTTONDOWN:
     #         pos_list.append(pos)

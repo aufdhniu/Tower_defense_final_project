@@ -18,7 +18,7 @@ def show_turret_data(turn_data):
 
         fig, ax = plt.subplots(figsize=(6, 3.5))
         turns = list(range(1, len(turn_data)+1))
-        ax.bar(turns, turn_data, color="skyblue")
+        ax.bar(turns, turn_data, color = "skyblue")
         ax.set_xlabel("Turn")
         ax.set_ylabel("Turrets Deployed")
         ax.set_title("Turrets Deployed Per Turn")

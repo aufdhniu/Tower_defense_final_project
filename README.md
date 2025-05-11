@@ -24,7 +24,7 @@ press esc for pause game
 press 'i' to show graph gui which you can choose graph different graph types (main game will pause)
 
 
-##  The goal of this game is to survive longest time possible as the game will keep getting harder the longer you play.
+##  The goal of this game is to push wave as much as possible against raiding enemy, collect more gold, then stand as long as possible
 
 ## warning
 after you lose the game a new data will replace to the csv file which will cause the information to change. So if you lose to soon that there will not be enough data to make the graph.
